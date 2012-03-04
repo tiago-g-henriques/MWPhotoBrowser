@@ -38,8 +38,11 @@
 @implementation MWPhoto
 
 // Properties
-@synthesize underlyingImage = _underlyingImage, 
-caption = _caption;
+@synthesize underlyingImage = _underlyingImage;
+@synthesize dateTime = _dateTime;
+@synthesize category = _category;
+@synthesize title = _title;
+@synthesize caption = _caption;
 
 #pragma mark Class Methods
 
@@ -79,6 +82,9 @@ caption = _caption;
 }
 
 - (void)dealloc {
+    [_dateTime release];
+    [_category release];
+    [_title release];
     [_caption release];
     [[SDWebImageManager sharedManager] cancelForDelegate:self];
 	[_photoPath release];
