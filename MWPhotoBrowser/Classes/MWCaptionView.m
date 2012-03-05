@@ -48,13 +48,11 @@ static const CGFloat labelPadding = 10;
     _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     _label.opaque = NO;
     _label.backgroundColor = [UIColor clearColor];
-    _label.textAlignment = UITextAlignmentCenter;
-    _label.lineBreakMode = UILineBreakModeWordWrap;
+    _label.textAlignment = UITextAlignmentLeft;
+    _label.lineBreakMode = UILineBreakModeTailTruncation;
     _label.numberOfLines = 10;
     _label.textColor = [UIColor whiteColor];
-    _label.shadowColor = [UIColor blackColor];
-    _label.shadowOffset = CGSizeMake(1, 1);
-    _label.font = [UIFont systemFontOfSize:17];
+    _label.font = [UIFont systemFontOfSize:14];
     if ([_photo respondsToSelector:@selector(caption)]) {
         _label.text = [_photo caption] ? [_photo caption] : @" ";
     }
