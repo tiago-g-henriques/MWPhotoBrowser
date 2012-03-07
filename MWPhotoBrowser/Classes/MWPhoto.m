@@ -43,6 +43,7 @@
 @synthesize category = _category;
 @synthesize title = _title;
 @synthesize caption = _caption;
+@synthesize URLString = _URLString;
 
 #pragma mark Class Methods
 
