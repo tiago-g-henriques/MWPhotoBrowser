@@ -56,5 +56,7 @@
 // Return a caption string to be displayed over the image
 // Return nil to display no caption
 - (NSString *)caption; 
+- (NSString *)title;
+- (NSString *)URLString; 
 
 @end
