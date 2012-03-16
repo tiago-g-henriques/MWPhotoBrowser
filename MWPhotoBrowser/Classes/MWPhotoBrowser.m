@@ -1116,7 +1116,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)shareWithTwitter
 {
-    MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if ([photo URLString]) {
         DLog(@"Share with Twitter");
         NSError *error = nil;
@@ -1145,7 +1145,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)shareWithFacebook
 {
-    MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if ([photo URLString]) {
         DLog(@"Share with Facebook");
         NSError *error = nil;
@@ -1167,7 +1167,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)openInBrowser
 {
-    MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if ([photo URLString]) {
         DLog(@"Open in Safari");
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[photo URLString]]];
@@ -1183,8 +1183,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 }
 
 - (void)actuallyEmailPhoto:(id<MWPhoto>)photo {
-    MWPhoto *aPhoto = photo;
-    if ([aPhoto underlyingImage]) {
+    if ([photo underlyingImage]) {
         MFMailComposeViewController *emailer = [[MFMailComposeViewController alloc] init];
         emailer.mailComposeDelegate = self;
         [emailer setSubject:[photo title]];
@@ -1195,8 +1194,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 #pragma warning TODO: Present user a error message
             return;
         }
-        NSString *messageBody = [NSString 
-                                 stringWithFormat:NSLocalizedString(
+        NSString *messageBody = [NSString stringWithFormat:NSLocalizedString(
                                     @"%1$@\n"
                                     "\n"
                                     "Ver mais fotos desta galeria: %2$@\n"
