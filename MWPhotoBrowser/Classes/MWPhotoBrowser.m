@@ -15,6 +15,7 @@
 #import "NSString+SKAdditions.h"
 #import "SKAbstractAppDelegate.h"
 #import "JSON.h"
+#import "SKMacros.h"
 
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
 #define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
@@ -1173,6 +1174,9 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[photo URLString]]];
     }
 }
+
+- (void)savePhoto {}
+- (void)copyPhoto {}
 
 - (void)emailPhoto {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
