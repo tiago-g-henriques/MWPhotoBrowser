@@ -303,7 +303,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     // Navigation buttons
     if ([self.navigationController.viewControllers objectAtIndex:0] == self) {
         // We're first on stack so show done button
-        UIBarButtonItem *doneButton = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Voltar", nil) style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)] autorelease];
+        UIBarButtonItem *doneButton = [[[UIBarButtonItem alloc] 
+                                        initWithTitle:NSLocalizedString(@"Voltar", @"Title of back button in photo browser") 
+                                        style:UIBarButtonItemStylePlain 
+                                        target:self
+                                        action:@selector(doneButtonPressed:)] autorelease];
         // Set appearance
         if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
             [doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
@@ -865,7 +869,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     
 	// Title
 	if ([self numberOfPhotos] > 1) {
-		self.title = [NSString stringWithFormat:@"%i %@ %i", _currentPageIndex+1, NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), [self numberOfPhotos]];		
+		self.title = [NSString stringWithFormat:@"%i %@ %i", _currentPageIndex+1, NSLocalizedString(@"of", @"As in 'Showing 1 of 3 items'"), [self numberOfPhotos]];		
 	} else {
 		self.title = nil;
 	}
@@ -1004,15 +1008,15 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             
             // Sheet
             self.actionsSheet = [[[UIActionSheet alloc] 
-                                  initWithTitle:NSLocalizedString(@"Share", "used in photo sharing context") 
+                                  initWithTitle:NSLocalizedString(@"Share", @"Used in photo sharing context") 
                                   delegate:self
-                                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                                  cancelButtonTitle:NSLocalizedString(@"Cancel", @"Used in photo sharing context")
                                   destructiveButtonTitle:nil
                                   otherButtonTitles:
-                                  NSLocalizedString(@"Email", nil),
-                                  NSLocalizedString(@"Open in Safari", nil),
-                                  NSLocalizedString(@"Facebook", nil),
-                                  NSLocalizedString(@"Twitter", nil),
+                                  NSLocalizedString(@"Email", @"Used in photo sharing context"),
+                                  NSLocalizedString(@"Open in Safari", @"Used in photo sharing context"),
+                                  NSLocalizedString(@"Facebook", @"Used in photo sharing context"),
+                                  NSLocalizedString(@"Twitter", @"Used in photo sharing context"),
                                   nil] autorelease];
             _actionsSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
             if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
@@ -1203,7 +1207,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                     "\n"
                                     "Conhece a aplicação Banca SAPO?\n"
                                     "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                    , @""),
+                                    , @"Used in photo sharing context"),
                                  [photo title],
                                  punyURI
                                  ];
@@ -1223,9 +1227,9 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
     if (result == MFMailComposeResultFailed) {
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Email", nil)
-                                                         message:NSLocalizedString(@"Email failed to send. Please try again.", nil)
-                                                        delegate:nil cancelButtonTitle:NSLocalizedString(@"Dismiss", nil) otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Email", @"Used in photo sharing context")
+                                                         message:NSLocalizedString(@"Email failed to send. Please try again.", @"Used in photo sharing context")
+                                                        delegate:nil cancelButtonTitle:NSLocalizedString(@"Dismiss", @"Used in photo sharing context") otherButtonTitles:nil] autorelease];
 		[alert show];
     }
 	[self dismissModalViewControllerAnimated:YES];
