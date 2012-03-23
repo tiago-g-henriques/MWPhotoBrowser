@@ -1205,7 +1205,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                     "\n"
                                     "Se estiver no PC poderá ver em http://fotos.sapo.pt\n"
                                     "\n"
-                                    "Conhece a aplicação Banca SAPO?\n"
+                                    "Conhece a aplicação \"banca sapo\"?\n"
                                     "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
                                     , @"Used in photo sharing context"),
                                  [photo title],
