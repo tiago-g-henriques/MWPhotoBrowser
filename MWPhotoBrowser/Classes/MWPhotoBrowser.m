@@ -244,20 +244,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
 	
-//    // Toolbar
-//    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
-//    _toolbar.tintColor = nil;
-//    if ([[UIToolbar class] respondsToSelector:@selector(appearance)]) {
-//        [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-//        [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
-//    }
-//    _toolbar.barStyle = UIBarStyleBlackTranslucent;
-//    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
-//    
-//    // Toolbar Items
-//    _previousButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowLeft.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
-//    _nextButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"MWPhotoBrowser.bundle/images/UIBarButtonItemArrowRight.png"] style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
     _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+    _actionButton.style = UIBarButtonItemStyleDone;
     
     // Update
     [self reloadData];
@@ -271,43 +259,32 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     
     // Setup
     _performingLayout = YES;
-//    NSUInteger numberOfPhotos = [self numberOfPhotos];
     
 	// Setup pages
     [_visiblePages removeAllObjects];
     [_recycledPages removeAllObjects];
     
-    // Toolbar
-//    if (numberOfPhotos > 1 || _displayActionButton) {
-//        [self.view addSubview:_toolbar];
-//    } else {
-//        [_toolbar removeFromSuperview];
-//    }
-    
-    // Toolbar items & navigation
-//    UIBarButtonItem *fixedLeftSpace = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil] autorelease];
-//    fixedLeftSpace.width = 32; // To balance action button
-//    UIBarButtonItem *flexSpace = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil] autorelease];
-//    NSMutableArray *items = [[NSMutableArray alloc] init];
-//    if (_displayActionButton) [items addObject:fixedLeftSpace];
-//    [items addObject:flexSpace];
-//    if (numberOfPhotos > 1) [items addObject:_previousButton];
-//    [items addObject:flexSpace];
-//    if (numberOfPhotos > 1) [items addObject:_nextButton];
-//    [items addObject:flexSpace];
-//    if (_displayActionButton) [items addObject:_actionButton];
-//    [_toolbar setItems:items];
-//    [items release];
 	[self updateNavigation];
     
     // Navigation buttons
     if ([self.navigationController.viewControllers objectAtIndex:0] == self) {
         // We're first on stack so show done button
+        UIImage *backButtonBackgroundImage =  [[UIImage imageNamed:@"back_btn.png"] stretchableImageWithLeftCapWidth:15 topCapHeight:0];
+        UIButton *exitButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [exitButton setBackgroundImage:backButtonBackgroundImage forState:UIControlStateNormal];
+        [exitButton setTitle:NSLocalizedString(@"Voltar", @"Title of back button in news article detail view")
+                    forState:UIControlStateNormal];
+        [exitButton setContentEdgeInsets:UIEdgeInsetsMake(0, 13, 0, 7)];
+        [exitButton.titleLabel setFont:[UIFont boldSystemFontOfSize:13.0]];
+        [exitButton.titleLabel setTextAlignment:UITextAlignmentCenter];
+        [exitButton addTarget:self
+                       action:@selector(doneButtonPressed:)
+             forControlEvents:UIControlEventTouchUpInside];
+        [exitButton sizeToFit];
         UIBarButtonItem *doneButton = [[[UIBarButtonItem alloc] 
-                                        initWithTitle:NSLocalizedString(@"Voltar", @"Title of back button in photo browser") 
-                                        style:UIBarButtonItemStylePlain 
-                                        target:self
-                                        action:@selector(doneButtonPressed:)] autorelease];
+                                        initWithCustomView:exitButton] autorelease];
+        doneButton.title = NSLocalizedString(@"Voltar", @"Title of back button in photo browser");
+
         // Set appearance
         if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
             [doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
@@ -370,7 +347,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     // Status bar
     if (self.wantsFullScreenLayout && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:animated];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
     }
     
     // Navigation bar appearance
