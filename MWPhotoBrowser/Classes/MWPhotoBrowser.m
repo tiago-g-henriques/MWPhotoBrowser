@@ -11,11 +11,6 @@
 #import "MWZoomingScrollView.h"
 #import "MBProgressHUD.h"
 #import "SDImageCache.h"
-#import "SKMutableURLRequest.h"
-#import "NSString+SKAdditions.h"
-#import "SKAbstractAppDelegate.h"
-#import "JSON.h"
-#import "SKMacros.h"
 
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
 #define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
@@ -984,17 +979,15 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             [self setControlsHidden:NO animated:YES permanent:YES];
             
             // Sheet
-            self.actionsSheet = [[[UIActionSheet alloc] 
-                                  initWithTitle:NSLocalizedString(@"Share", @"Used in photo sharing context") 
-                                  delegate:self
-                                  cancelButtonTitle:NSLocalizedString(@"Cancel", @"Used in photo sharing context")
-                                  destructiveButtonTitle:nil
-                                  otherButtonTitles:
-                                  NSLocalizedString(@"Email", @"Used in photo sharing context"),
-                                  NSLocalizedString(@"Open in Safari", @"Used in photo sharing context"),
-                                  NSLocalizedString(@"Facebook", @"Used in photo sharing context"),
-                                  NSLocalizedString(@"Twitter", @"Used in photo sharing context"),
-                                  nil] autorelease];
+            if ([MFMailComposeViewController canSendMail]) {
+                self.actionsSheet = [[[UIActionSheet alloc] initWithTitle:nil delegate:self
+                                                        cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil
+                                                        otherButtonTitles:NSLocalizedString(@"Save", nil), NSLocalizedString(@"Copy", nil), NSLocalizedString(@"Email", nil), nil] autorelease];
+            } else {
+                self.actionsSheet = [[[UIActionSheet alloc] initWithTitle:nil delegate:self
+                                                        cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil
+                                                        otherButtonTitles:NSLocalizedString(@"Save", nil), NSLocalizedString(@"Copy", nil), nil] autorelease];
+            }
             _actionsSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
             if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
                 [_actionsSheet showFromBarButtonItem:sender animated:YES];
@@ -1014,13 +1007,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         self.actionsSheet = nil;
         if (buttonIndex != actionSheet.cancelButtonIndex) {
             if (buttonIndex == actionSheet.firstOtherButtonIndex) {
-                [self emailPhoto]; return;
+                [self savePhoto]; return;
             } else if (buttonIndex == actionSheet.firstOtherButtonIndex + 1) {
-                [self openInBrowser]; return;	
+                [self copyPhoto]; return;	
             } else if (buttonIndex == actionSheet.firstOtherButtonIndex + 2) {
-                [self shareWithFacebook]; return;	
-            } else if (buttonIndex == actionSheet.firstOtherButtonIndex + 3) {
-                [self shareWithTwitter]; return;	
+                [self emailPhoto]; return;
             }
         }
     }
@@ -1069,89 +1060,42 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 #pragma mark - Actions
 
-- (NSString *)punyURIforURLAddress:(NSString *)URLAddress withError:(NSError **)error
-{
-    NSString *punyURLTemplate = [[[SKAbstractAppDelegate sharedDelegate] sourcesInfo]
-                                 objectForKey:@"PunyURLTemplate"];
-    NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:punyURLTemplate,
-                                       [URLAddress URLEncodedString]]];
-    SKMutableURLRequest* request = [SKMutableURLRequest requestWithURL:url];
-    NSData *data = [NSURLConnection sendSynchronousRequest:request
-                                         returningResponse:nil
-                                                     error:error];
-    if (data == nil) {
-        NSLog(@"Error requesting article punyURL : %@", error);
-        return nil;
-    }
-    
-    NSString* JSONString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSString* punyURI = [[JSONString JSONValue] valueForKeyPath:@"punyURL.ascii"];
-    [JSONString release];
-    return [[punyURI retain] autorelease];
-}
-
-- (void)shareWithTwitter
-{
+- (void)savePhoto {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([photo URLString]) {
-        DLog(@"Share with Twitter");
-        NSError *error = nil;
-        NSString *punyURI = [self punyURIforURLAddress:[photo URLString] withError:&error];
-        if (punyURI == nil) {
-#pragma warning TODO: Present user a error message
-            return;
-        }
-        
-        NSString *title = photo.title;
-        NSString *statusTemplate = @"%1$@ %2$@ @saponoticias";
-        int tweetOverhead = 1 + [punyURI length] + 14;
-        
-        if (([title length] + tweetOverhead) > 140) {
-            title = [title substringToIndex:([title length] - tweetOverhead)];
-        }
-        NSString *statusMessage = [NSString stringWithFormat:statusTemplate, title, punyURI];
-        NSString *encodedStatusMessage = [statusMessage URLEncodedString];
-        
-        NSString *twitterShareURLTemplate = [[[SKAbstractAppDelegate sharedDelegate] sourcesInfo]
-                                             objectForKey:@"TwitterShareURLTemplate"];
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:twitterShareURLTemplate, encodedStatusMessage]];
-        [[UIApplication sharedApplication] openURL:url];
+    if ([photo underlyingImage]) {
+        [self showProgressHUDWithMessage:[NSString stringWithFormat:@"%@\u2026" , NSLocalizedString(@"Saving", @"Displayed with ellipsis as 'Saving...' when an item is in the process of being saved")]];
+        [self performSelector:@selector(actuallySavePhoto:) withObject:photo afterDelay:0];
     }
 }
 
-- (void)shareWithFacebook
-{
+- (void)actuallySavePhoto:(id<MWPhoto>)photo {
+    if ([photo underlyingImage]) {
+        UIImageWriteToSavedPhotosAlbum([photo underlyingImage], self, 
+                                       @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    }
+}
+
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
+    [self showProgressHUDCompleteMessage: error ? NSLocalizedString(@"Failed", @"Informing the user a process has failed") : NSLocalizedString(@"Saved", @"Informing the user an item has been saved")];
+    [self hideControlsAfterDelay]; // Continue as normal...
+}
+
+- (void)copyPhoto {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([photo URLString]) {
-        DLog(@"Share with Facebook");
-        NSError *error = nil;
-        NSString *punyURI = [self punyURIforURLAddress:[photo URLString] withError:&error];
-        if (punyURI == nil) {
-#pragma warning TODO: Present user a error message
-            return;
-        }
-        
-        NSString *facebookShareURLTemplate = [[[SKAbstractAppDelegate sharedDelegate] sourcesInfo]
-                                              objectForKey:@"FacebookShareURLTemplate"];
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:
-                                           facebookShareURLTemplate,
-                                           punyURI
-                                           ]];
-        [[UIApplication sharedApplication] openURL:url];
+    if ([photo underlyingImage]) {
+        [self showProgressHUDWithMessage:[NSString stringWithFormat:@"%@\u2026" , NSLocalizedString(@"Copying", @"Displayed with ellipsis as 'Copying...' when an item is in the process of being copied")]];
+        [self performSelector:@selector(actuallyCopyPhoto:) withObject:photo afterDelay:0];
     }
 }
 
-- (void)openInBrowser
-{
-    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([photo URLString]) {
-        DLog(@"Open in Safari");
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[photo URLString]]];
+- (void)actuallyCopyPhoto:(id<MWPhoto>)photo {
+    if ([photo underlyingImage]) {
+        [[UIPasteboard generalPasteboard] setData:UIImagePNGRepresentation([photo underlyingImage])
+                                forPasteboardType:@"public.png"];
+        [self showProgressHUDCompleteMessage:NSLocalizedString(@"Copied", @"Informing the user an item has finished copying")];
+        [self hideControlsAfterDelay]; // Continue as normal...
     }
 }
-
-- (void)savePhoto {}
-- (void)copyPhoto {}
 
 - (void)emailPhoto {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
@@ -1165,35 +1109,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     if ([photo underlyingImage]) {
         MFMailComposeViewController *emailer = [[MFMailComposeViewController alloc] init];
         emailer.mailComposeDelegate = self;
-        [emailer setSubject:[photo title]];
-        
-        NSError *error = nil;
-        NSString *punyURI = [self punyURIforURLAddress:[photo URLString] withError:&error];
-        if (punyURI == nil) {
-#pragma warning TODO: Present user a error message
-            return;
-        }
-        NSString *messageBody = [NSString stringWithFormat:NSLocalizedString(
-                                    @"%1$@\n"
-                                    "\n"
-                                    "Ver mais fotos desta galeria: %2$@\n"
-                                    "\n"
-                                    "Pode ver mais fotos no seu smartphone em http://m.sapo.pt/fotos/\n"
-                                    "\n"
-                                    "Se estiver no PC poderá ver em http://fotos.sapo.pt\n"
-                                    "\n"
-                                    "Conhece a aplicação \"banca sapo\"?\n"
-                                    "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                    , @"Used in photo sharing context"),
-                                 [photo title],
-                                 punyURI
-                                 ];
-        
+        [emailer setSubject:NSLocalizedString(@"Photo", nil)];
         [emailer addAttachmentData:UIImagePNGRepresentation([photo underlyingImage]) mimeType:@"png" fileName:@"Photo.png"];
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
             emailer.modalPresentationStyle = UIModalPresentationPageSheet;
         }
-        [emailer setMessageBody:messageBody isHTML:NO];
         [self presentModalViewController:emailer animated:YES];
         [emailer release];
         [self hideProgressHUD:NO];
@@ -1204,9 +1124,9 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
     if (result == MFMailComposeResultFailed) {
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Email", @"Used in photo sharing context")
-                                                         message:NSLocalizedString(@"Email failed to send. Please try again.", @"Used in photo sharing context")
-                                                        delegate:nil cancelButtonTitle:NSLocalizedString(@"Dismiss", @"Used in photo sharing context") otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Email", nil)
+                                                         message:NSLocalizedString(@"Email failed to send. Please try again.", nil)
+                                                        delegate:nil cancelButtonTitle:NSLocalizedString(@"Dismiss", nil) otherButtonTitles:nil] autorelease];
 		[alert show];
     }
 	[self dismissModalViewControllerAnimated:YES];
