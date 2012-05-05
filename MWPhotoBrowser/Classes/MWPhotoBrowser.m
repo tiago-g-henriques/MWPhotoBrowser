@@ -264,32 +264,6 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     // Navigation buttons
     if ([self.navigationController.viewControllers objectAtIndex:0] == self) {
         // We're first on stack so show done button
-        UIImage *backButtonBackgroundImage =  [[UIImage imageNamed:@"back_btn.png"] stretchableImageWithLeftCapWidth:15 topCapHeight:0];
-        UIButton *exitButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [exitButton setBackgroundImage:backButtonBackgroundImage forState:UIControlStateNormal];
-        [exitButton setTitle:NSLocalizedString(@"Voltar", @"Title of back button in news article detail view")
-                    forState:UIControlStateNormal];
-        [exitButton setContentEdgeInsets:UIEdgeInsetsMake(0, 13, 0, 7)];
-        [exitButton.titleLabel setFont:[UIFont boldSystemFontOfSize:13.0]];
-        [exitButton.titleLabel setTextAlignment:UITextAlignmentCenter];
-        [exitButton addTarget:self
-                       action:@selector(doneButtonPressed:)
-             forControlEvents:UIControlEventTouchUpInside];
-        [exitButton sizeToFit];
-        UIBarButtonItem *doneButton = [[[UIBarButtonItem alloc] 
-                                        initWithCustomView:exitButton] autorelease];
-        doneButton.title = NSLocalizedString(@"Voltar", @"Title of back button in photo browser");
-
-        // Set appearance
-        if ([UIBarButtonItem respondsToSelector:@selector(appearance)]) {
-            [doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-            [doneButton setBackgroundImage:nil forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhone];
-            [doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-            [doneButton setBackgroundImage:nil forState:UIControlStateHighlighted barMetrics:UIBarMetricsLandscapePhone];
-            [doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateNormal];
-            [doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
-        }
-        self.navigationItem.leftBarButtonItem = doneButton;
         self.navigationItem.rightBarButtonItem = _actionButton;
     } else {
         // We're not first so show back button
