@@ -965,7 +965,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         // Keep controls hidden
         [self setControlsHidden:NO animated:YES permanent:YES];
         
-        SHKItem *item = [SHKItem image:[photo underlyingImage] title:photo.title];
+        NSURL *url = [NSURL URLWithString:[photo URLString]];
+        SHKItem *item = [SHKItem URL:url title:photo.title];
         
         // Get the ShareKit action sheet
         SHKActionSheet *actionSheet = [SHKActionSheet actionSheetForItem:item];
