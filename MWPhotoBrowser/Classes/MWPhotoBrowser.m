@@ -974,11 +974,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                                         otherButtonTitles:nil];
         
         if ([MFMailComposeViewController canSendMail]) {
-            [actionSheet addButtonWithTitle:SHKLocalizedString(@"Email",nil)];
+            [actionSheet addButtonWithTitle:NSLocalizedString(@"Email", @"Title of sharing button")];
         }
-        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Share on Facebook",nil)];
-        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Share on Twitter",nil)];
-        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Open in Safari",nil)];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Safari", @"Title of sharing button")];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Facebook", @"Title of sharing button")];
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Twitter", @"Title of sharing button")];
         
         [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"Cancel button title")];
         actionSheet.cancelButtonIndex = actionSheet.numberOfButtons-1;
@@ -1000,10 +1000,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             [self shareByEmail];
         } else {
             NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                   @"SHKTwitter", SHKLocalizedString(@"Share on Twitter",nil),
-                                   @"SHKFacebook", SHKLocalizedString(@"Share on Facebook",nil), 
-                                   @"SHKSafari", SHKLocalizedString(@"Open in Safari",nil), 
-                                   @"SHKMail", SHKLocalizedString(@"Email", nil), nil];
+                                   @"SHKMail", NSLocalizedString(@"Email", @"Title of sharing button"),
+                                   @"SHKSafari", NSLocalizedString(@"Safari", @"Title of sharing button"), 
+                                   @"SHKTwitter", NSLocalizedString(@"Twitter", @"Title of sharing button"),
+                                   @"SHKFacebook", NSLocalizedString(@"Facebook", @"Title of sharing button"), 
+                                   nil];
             NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
             
             Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
