@@ -819,7 +819,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 - (void)updateNavigation {
     // Set navigation title view
     MWPhoto *photo = [_photos objectAtIndex:_currentPageIndex];
-    if (photo == [NSNull null]) {
+    if ((NSNull *)photo == [NSNull null]) {
         self.navigationItem.title = self.title;
     } else {
         NSString *photoTitle = photo.title;
