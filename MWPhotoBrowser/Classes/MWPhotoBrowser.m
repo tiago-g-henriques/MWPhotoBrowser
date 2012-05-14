@@ -994,23 +994,57 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
         
-        if (buttonIndex == actionSheet.cancelButtonIndex) return;
+        if (buttonIndex == actionSheet.cancelButtonIndex) {
+            return;
+        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:SHKLocalizedString(@"Email",nil)]) {
+            [self shareByEmail];
+        } else {
+            NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                   @"SHKTwitter", SHKLocalizedString(@"Share on Twitter",nil),
+                                   @"SHKFacebook", SHKLocalizedString(@"Share on Facebook",nil), 
+                                   @"SHKSafari", SHKLocalizedString(@"Open in Safari",nil), 
+                                   @"SHKMail", SHKLocalizedString(@"Email", nil), nil];
+            NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
+            
+            Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
+            
+            NSURL *url = [NSURL URLWithString:[photo URLString]];
+            SHKItem *item = [SHKItem URL:url title:[photo title]];
+            
+            [SharersClass performSelector:@selector(shareItem:) withObject:item];    
+        }
         
-        NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
-                               @"SHKTwitter", SHKLocalizedString(@"Share on Twitter",nil),
-                               @"SHKFacebook", SHKLocalizedString(@"Share on Facebook",nil), 
-                               @"SHKSafari", SHKLocalizedString(@"Open in Safari",nil), 
-                               @"SHKMail", SHKLocalizedString(@"Email", nil), nil];
-        NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
-        
-        Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
-        
-        NSURL *url = [NSURL URLWithString:[photo URLString]];
-        SHKItem *item = [SHKItem URL:url title:photo.title];
-        
-        [SharersClass performSelector:@selector(shareItem:) withObject:item];    
     }
 } 
+
+- (void)shareByEmail
+{
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    
+    MFMailComposeViewController *mailComposer = [[MFMailComposeViewController alloc] init];
+    mailComposer.mailComposeDelegate = self;
+    [mailComposer setSubject:[photo title]];
+    
+    NSString *messageBody = [NSString 
+                             stringWithFormat:NSLocalizedString(
+                                                                @"Veja esta imagem no seu PC em %1$@\n"
+                                                                "\n"
+                                                                "Conhece a aplicação \"banca sapo\"?"
+                                                                "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
+                                                                , @"Used when sharing photo galleries by email"),
+                             [photo URLString]];
+    
+    [mailComposer setMessageBody:messageBody isHTML:NO];
+    
+    if ([photo underlyingImage]) {
+        NSData *imageData = UIImagePNGRepresentation([photo underlyingImage]);
+        [mailComposer addAttachmentData:imageData
+                               mimeType:@"image/png" 
+                               fileName:@"cover.png"];
+    }
+    
+    [self presentModalViewController:mailComposer animated:YES];
+}
 
 #pragma mark - MBProgressHUD
 
