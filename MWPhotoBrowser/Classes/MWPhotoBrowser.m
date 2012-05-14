@@ -965,39 +965,52 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         // Keep controls hidden
         [self setControlsHidden:NO animated:YES permanent:YES];
         
-        NSURL *url = [NSURL URLWithString:[photo URLString]];
-        SHKItem *item = [SHKItem URL:url title:photo.title];
+        NSString *actionSheetTitle = [NSString stringWithFormat:NSLocalizedString(@"Share", nil)];
         
-        // Get the ShareKit action sheet
-        SHKActionSheet *actionSheet = [SHKActionSheet actionSheetForItem:item];
+        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:actionSheetTitle 
+                                                                 delegate:self 
+                                                        cancelButtonTitle:nil
+                                                   destructiveButtonTitle:nil 
+                                                        otherButtonTitles:nil];
         
-        // ShareKit detects top view controller (the one intended to present ShareKit UI) automatically,
-        // but sometimes it may not find one. To be safe, set it explicitly
-        [SHK setRootViewController:self];
+        if ([MFMailComposeViewController canSendMail]) {
+            [actionSheet addButtonWithTitle:SHKLocalizedString(@"Email",nil)];
+        }
+        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Share on Facebook",nil)];
+        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Share on Twitter",nil)];
+        [actionSheet addButtonWithTitle:SHKLocalizedString(@"Open in Safari",nil)];
+        
+        [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"Cancel button title")];
+        actionSheet.cancelButtonIndex = actionSheet.numberOfButtons-1;
+        
+        actionSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
         
         // Display the action sheet
         [actionSheet showFromBarButtonItem:self.navigationItem.rightBarButtonItem animated:YES];
     }
 }
 
-#pragma mark - Action Sheet Delegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    if (actionSheet == _actionsSheet) {           
-        // Actions 
-        self.actionsSheet = nil;
-        if (buttonIndex != actionSheet.cancelButtonIndex) {
-            if (buttonIndex == actionSheet.firstOtherButtonIndex) {
-                [self savePhoto]; return;
-            } else if (buttonIndex == actionSheet.firstOtherButtonIndex + 1) {
-                [self copyPhoto]; return;	
-            } else if (buttonIndex == actionSheet.firstOtherButtonIndex + 2) {
-                [self emailPhoto]; return;
-            }
-        }
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
+        
+        if (buttonIndex == actionSheet.cancelButtonIndex) return;
+        
+        NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
+                               @"SHKTwitter", SHKLocalizedString(@"Share on Twitter",nil),
+                               @"SHKFacebook", SHKLocalizedString(@"Share on Facebook",nil), 
+                               @"SHKSafari", SHKLocalizedString(@"Open in Safari",nil), 
+                               @"SHKMail", SHKLocalizedString(@"Email", nil), nil];
+        NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
+        
+        Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
+        
+        NSURL *url = [NSURL URLWithString:[photo URLString]];
+        SHKItem *item = [SHKItem URL:url title:photo.title];
+        
+        [SharersClass performSelector:@selector(shareItem:) withObject:item];    
     }
-    [self hideControlsAfterDelay]; // Continue as normal...
-}
+} 
 
 #pragma mark - MBProgressHUD
 
