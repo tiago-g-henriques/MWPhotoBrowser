@@ -817,27 +817,13 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 #pragma mark - Navigation
 
 - (void)updateNavigation {
-    // Set navigation title view
-    MWPhoto *photo = [_photos objectAtIndex:_currentPageIndex];
-    if ((NSNull *)photo == [NSNull null]) {
-        self.navigationItem.title = self.title;
-    } else {
-        NSString *photoTitle = photo.title;
-        UILabel *titleLabel =[[UILabel alloc] init];
-        titleLabel.text = photoTitle;
-        titleLabel.font = [UIFont boldSystemFontOfSize:20];
-        titleLabel.minimumFontSize = 10;
-        titleLabel.adjustsFontSizeToFitWidth = YES;
-        titleLabel.numberOfLines = 1;
-        titleLabel.lineBreakMode = UILineBreakModeTailTruncation;
-        titleLabel.textAlignment = UITextAlignmentCenter;
-        titleLabel.backgroundColor = [UIColor clearColor];
-        titleLabel.textColor = [UIColor whiteColor];
-        titleLabel.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.3];
-        [titleLabel sizeToFit];
-        self.navigationItem.titleView = titleLabel;        
-    }
-    
+	// Title
+	if ([self numberOfPhotos] > 1) {
+		self.title = [NSString stringWithFormat:@"%i %@ %i", _currentPageIndex+1, NSLocalizedString(@"of", @"As in 'Showing 1 of 3 items'"), [self numberOfPhotos]];		
+	} else {
+		self.title = nil;
+	}
+	    
 	// Buttons
 	_previousButton.enabled = (_currentPageIndex > 0);
 	_nextButton.enabled = (_currentPageIndex < [self numberOfPhotos]-1);
