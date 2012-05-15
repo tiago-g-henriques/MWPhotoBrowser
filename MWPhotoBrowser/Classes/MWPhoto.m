@@ -43,7 +43,9 @@
 @synthesize category = _category;
 @synthesize title = _title;
 @synthesize caption = _caption;
-@synthesize URLString = _URLString;
+@synthesize imageUrlString;
+@synthesize pageUrlString;
+@synthesize mobilePageUrlString;
 
 #pragma mark Class Methods
 

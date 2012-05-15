@@ -995,7 +995,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             
             Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
             
-            NSURL *url = [NSURL URLWithString:[photo URLString]];
+            NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
             SHKItem *item = [SHKItem URL:url title:[photo title]];
             
             [SharersClass performSelector:@selector(shareItem:) withObject:item];    
@@ -1012,14 +1012,31 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     mailComposer.mailComposeDelegate = self;
     [mailComposer setSubject:[photo title]];
     
-    NSString *messageBody = [NSString 
-                             stringWithFormat:NSLocalizedString(
-                                                                @"Veja esta imagem no seu PC em %1$@\n"
-                                                                "\n"
-                                                                "Conhece a aplicação \"banca sapo\"?"
-                                                                "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                                                , @"Used when sharing photo galleries by email"),
-                             [photo URLString]];
+    NSString *messageBody = nil;
+    if ([photo mobilePageUrlString]) {
+        messageBody = [NSString 
+                                 stringWithFormat:NSLocalizedString(
+                                                                    @"Veja mais no seu PC em %1$@\n"
+                                                                    "\n"
+                                                                    @"Veja mais no seu telemóvel em %2$@\n"
+                                                                    "\n"
+                                                                    "Conhece a aplicação \"banca sapo\"?"
+                                                                    "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
+                                                                    , @"Used when sharing photo galleries by email"),
+                                 [photo pageUrlString],
+                                 [photo mobilePageUrlString]
+                                 ];
+    } else {
+        messageBody = [NSString 
+                       stringWithFormat:NSLocalizedString(
+                                                          @"Veja mais no seu PC em %1$@\n"
+                                                          "\n"
+                                                          "Conhece a aplicação \"banca sapo\"?"
+                                                          "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
+                                                          , @"Used when sharing photo galleries by email"),
+                       [photo pageUrlString]
+                       ];
+    }
     
     [mailComposer setMessageBody:messageBody isHTML:NO];
     

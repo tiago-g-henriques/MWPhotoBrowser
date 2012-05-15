@@ -20,9 +20,11 @@
 // Properties
 @property (nonatomic, retain) NSString *dateTime;
 @property (nonatomic, retain) NSString *category;
-@property (nonatomic, retain) NSString *title;
 @property (nonatomic, retain) NSString *caption;
-@property (nonatomic, retain) NSString *URLString;
+@property (nonatomic, retain) NSString *title;
+@property (nonatomic, retain) NSString *imageUrlString;
+@property (nonatomic, retain) NSString *pageUrlString;
+@property (nonatomic, retain) NSString *mobilePageUrlString;
 
 // Class
 + (MWPhoto *)photoWithImage:(UIImage *)image;

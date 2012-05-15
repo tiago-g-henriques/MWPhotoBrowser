@@ -57,6 +57,8 @@
 // Return nil to display no caption
 - (NSString *)caption; 
 - (NSString *)title;
-- (NSString *)URLString; 
+- (NSString *)imageUrlString; 
+- (NSString *)pageUrlString; 
+- (NSString *)mobilePageUrlString; 
 
 @end
