@@ -982,7 +982,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         
         if (buttonIndex == actionSheet.cancelButtonIndex) {
             return;
-        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:SHKLocalizedString(@"Email",nil)]) {
+        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:NSLocalizedString(@"Email",nil)]) {
             [self shareByEmail];
         } else {
             NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -1015,25 +1015,31 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     NSString *messageBody = nil;
     if ([photo mobilePageUrlString]) {
         messageBody = [NSString 
-                                 stringWithFormat:NSLocalizedString(
-                                                                    @"Veja mais no seu PC em %1$@\n"
-                                                                    "\n"
-                                                                    @"Veja mais no seu telemóvel em %2$@\n"
-                                                                    "\n"
-                                                                    "Conhece a aplicação \"banca sapo\"?"
-                                                                    "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                                                    , @"Used when sharing photo galleries by email"),
-                                 [photo pageUrlString],
-                                 [photo mobilePageUrlString]
-                                 ];
-    } else {
-        messageBody = [NSString 
                        stringWithFormat:NSLocalizedString(
-                                                          @"Veja mais no seu PC em %1$@\n"
+                                                          @"%1$@\n"
+                                                          "\n"
+                                                          "Veja mais no seu PC em %2$@\n"
+                                                          "\n"
+                                                          "Veja mais no seu telemóvel em %3$@\n"
                                                           "\n"
                                                           "Conhece a aplicação \"banca sapo\"?"
                                                           "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
                                                           , @"Used when sharing photo galleries by email"),
+                       [photo caption],
+                       [photo pageUrlString],
+                       [photo mobilePageUrlString]
+                       ];
+    } else {
+        messageBody = [NSString 
+                       stringWithFormat:NSLocalizedString(
+                                                          @"%1$@\n"
+                                                          "\n"
+                                                          "Veja mais no seu PC em %2$@\n"
+                                                          "\n"
+                                                          "Conhece a aplicação \"banca sapo\"?"
+                                                          "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
+                                                          , @"Used when sharing photo galleries by email"),
+                       [photo caption],
                        [photo pageUrlString]
                        ];
     }
