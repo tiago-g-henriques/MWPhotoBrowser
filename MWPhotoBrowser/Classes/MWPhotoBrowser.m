@@ -1024,7 +1024,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                                           "\n"
                                                           "Conhece a aplicação \"banca sapo\"?"
                                                           "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                                          , @"Used when sharing photo galleries by email"),
+                                                          , @"Used when sharing photos by email"),
                        [photo caption],
                        [photo pageUrlString],
                        [photo mobilePageUrlString]
@@ -1038,7 +1038,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                                           "\n"
                                                           "Conhece a aplicação \"banca sapo\"?"
                                                           "Faça download desta e de outras aplicações em http://mobile.sapo.pt/smartphones."
-                                                          , @"Used when sharing photo galleries by email"),
+                                                          , @"Used when sharing photos by email"),
                        [photo caption],
                        [photo pageUrlString]
                        ];
