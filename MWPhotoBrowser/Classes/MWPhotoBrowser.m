@@ -12,6 +12,7 @@
 #import "MBProgressHUD.h"
 #import "SDImageCache.h"
 #import "SHK.h"
+#import "SHKSafari.h"
 
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
 #define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
@@ -979,15 +980,20 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
+        SHKItem *item = nil;
         
         if (buttonIndex == actionSheet.cancelButtonIndex) {
             return;
-        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:NSLocalizedString(@"Email",nil)]) {
+        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+                    isEqualToString:NSLocalizedString(@"Email", @"Title of sharing button")]) {
             [self shareByEmail];
+        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+                    isEqualToString:NSLocalizedString(@"Safari", @"Title of sharing button")]) {
+            NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
+            item = [SHKItem URL:url title:[photo title]];
+            [SHKSafari shareItem:item];
         } else {
             NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                   @"SHKMail", NSLocalizedString(@"Email", @"Title of sharing button"),
-                                   @"SHKSafari", NSLocalizedString(@"Safari", @"Title of sharing button"), 
                                    @"SHKTwitter", NSLocalizedString(@"Twitter", @"Title of sharing button"),
                                    @"SHKFacebook", NSLocalizedString(@"Facebook", @"Title of sharing button"), 
                                    nil];
@@ -995,12 +1001,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             
             Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
             
-            NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
-            SHKItem *item = [SHKItem URL:url title:[photo title]];
+            item = [SHKItem image:[photo underlyingImage] title:[photo title]];
             
             [SharersClass performSelector:@selector(shareItem:) withObject:item];    
         }
-        
     }
 } 
 
