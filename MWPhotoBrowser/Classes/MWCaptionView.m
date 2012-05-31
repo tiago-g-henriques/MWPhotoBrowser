@@ -50,7 +50,7 @@ static const CGFloat labelPadding = 10;
     _label.backgroundColor = [UIColor clearColor];
     _label.textAlignment = UITextAlignmentLeft;
     _label.lineBreakMode = UILineBreakModeTailTruncation;
-    _label.numberOfLines = 10;
+    _label.numberOfLines = 16;
     _label.textColor = [UIColor whiteColor];
     _label.font = [UIFont systemFontOfSize:14];
     if ([_photo respondsToSelector:@selector(caption)]) {
