@@ -45,7 +45,7 @@
 	UIToolbar *_toolbar;
 	NSTimer *_controlVisibilityTimer;
 	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton;
-    UIActionSheet *_actionsSheet;
+    UIActionSheet *_actionSheet;
     MBProgressHUD *_progressHUD;
     
     // Appearance
@@ -70,7 +70,7 @@
 @property (nonatomic, retain) UIColor *previousNavBarTintColor;
 @property (nonatomic, retain) UIBarButtonItem *previousViewControllerBackButton;
 @property (nonatomic, retain) UIImage *navigationBarBackgroundImageDefault, *navigationBarBackgroundImageLandscapePhone;
-@property (nonatomic, retain) UIActionSheet *actionsSheet;
+@property (nonatomic, retain) UIActionSheet *actionSheet;
 @property (nonatomic, retain) MBProgressHUD *progressHUD;
 
 // Private Methods
@@ -139,7 +139,7 @@
 @synthesize previousNavBarTintColor = _previousNavBarTintColor;
 @synthesize navigationBarBackgroundImageDefault = _navigationBarBackgroundImageDefault,
 navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandscapePhone;
-@synthesize displayActionButton = _displayActionButton, actionsSheet = _actionsSheet;
+@synthesize displayActionButton = _displayActionButton, actionSheet = _actionSheet;
 @synthesize progressHUD = _progressHUD;
 @synthesize previousViewControllerBackButton = _previousViewControllerBackButton;
 
@@ -337,7 +337,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    
+    if (self.actionSheet) {
+        // Dismiss
+        [self.actionSheet dismissWithClickedButtonIndex:self.actionSheet.cancelButtonIndex animated:YES];
+    }
+
     // Check that we're being popped for good
     if ([self.navigationController.viewControllers objectAtIndex:0] != self &&
         ![self.navigationController.viewControllers containsObject:self]) {
@@ -949,9 +953,9 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)actionButtonPressed:(id)sender {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if (self.actionsSheet) {
+    if (self.actionSheet) {
         // Dismiss
-        [self.actionsSheet dismissWithClickedButtonIndex:self.actionsSheet.cancelButtonIndex animated:YES];
+        [self.actionSheet dismissWithClickedButtonIndex:self.actionSheet.cancelButtonIndex animated:YES];
     } else if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
         
         // Keep controls hidden
@@ -959,44 +963,42 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         
         NSString *actionSheetTitle = [NSString stringWithFormat:NSLocalizedString(@"Share", nil)];
         
-        UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:actionSheetTitle 
+        self.actionSheet = [[UIActionSheet alloc] initWithTitle:actionSheetTitle 
                                                                  delegate:self 
                                                         cancelButtonTitle:nil
                                                    destructiveButtonTitle:nil 
                                                         otherButtonTitles:nil];
         
         if ([MFMailComposeViewController canSendMail]) {
-            [actionSheet addButtonWithTitle:NSLocalizedString(@"Email", @"Title of sharing button")];
+            [_actionSheet addButtonWithTitle:NSLocalizedString(@"Email", @"Title of sharing button")];
         }
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"Safari", @"Title of sharing button")];
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"Facebook", @"Title of sharing button")];
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"Twitter", @"Title of sharing button")];
+        [_actionSheet addButtonWithTitle:NSLocalizedString(@"Safari", @"Title of sharing button")];
+        [_actionSheet addButtonWithTitle:NSLocalizedString(@"Facebook", @"Title of sharing button")];
+        [_actionSheet addButtonWithTitle:NSLocalizedString(@"Twitter", @"Title of sharing button")];
         
-        [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"Cancel button title")];
-        actionSheet.cancelButtonIndex = actionSheet.numberOfButtons-1;
+        [_actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"Cancel button title")];
+        _actionSheet.cancelButtonIndex = _actionSheet.numberOfButtons-1;
         
-        actionSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
+        _actionSheet.actionSheetStyle = UIActionSheetStyleBlackTranslucent;
         
         // Display the action sheet
-        [actionSheet showFromBarButtonItem:self.navigationItem.rightBarButtonItem animated:YES];
-        
-        self.actionsSheet = actionSheet;
+        [_actionSheet showFromBarButtonItem:self.navigationItem.rightBarButtonItem animated:YES];
     }
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    if (actionSheet == self.actionsSheet) {
-        self.actionsSheet = nil;
+- (void)actionSheet:(UIActionSheet *)someActionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (someActionSheet == self.actionSheet) {
+        self.actionSheet = nil;
         id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
         if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
             SHKItem *item = nil;
             
-            if (buttonIndex == actionSheet.cancelButtonIndex) {
+            if (buttonIndex == someActionSheet.cancelButtonIndex) {
                 return;
-            } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+            } else if ([[someActionSheet buttonTitleAtIndex:buttonIndex] 
                         isEqualToString:NSLocalizedString(@"Email", @"Title of sharing button")]) {
                 [self shareByEmail];
-            } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+            } else if ([[someActionSheet buttonTitleAtIndex:buttonIndex] 
                         isEqualToString:NSLocalizedString(@"Safari", @"Title of sharing button")]) {
                 NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
                 item = [SHKItem URL:url title:[photo title]];
@@ -1006,7 +1008,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                                        @"SHKTwitter", NSLocalizedString(@"Twitter", @"Title of sharing button"),
                                        @"SHKFacebook", NSLocalizedString(@"Facebook", @"Title of sharing button"), 
                                        nil];
-                NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
+                NSString *sharersName = [someActionSheet buttonTitleAtIndex:buttonIndex];
                 
                 Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
                 
@@ -1015,6 +1017,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
                 [SharersClass performSelector:@selector(shareItem:) withObject:item];    
             }
         }
+        
+        self.actionSheet = nil;
     }
 } 
 
