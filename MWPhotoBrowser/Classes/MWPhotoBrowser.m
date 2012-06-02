@@ -823,16 +823,19 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)updateNavigation {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    NSString *photoTitle = [photo title];
-	// Title
-	if ([self numberOfPhotos] > 1) {
-		self.title = [NSString stringWithFormat:@"%@ (%i/%i)",
-                      photoTitle,
-                      _currentPageIndex+1, 
-                      [self numberOfPhotos]];		
-	} else {
-		self.title = photoTitle;
-	}
+    self.title = [photo title];
+    UILabel *label = [[UILabel alloc] init];
+    label.textColor = [UIColor whiteColor];
+    label.backgroundColor = [UIColor clearColor];
+    label.adjustsFontSizeToFitWidth = YES;
+    label.textAlignment = UITextAlignmentCenter;
+    label.lineBreakMode = UILineBreakModeTailTruncation;
+    label.text = self.title;
+    label.minimumFontSize = 12;
+    UIFont *font = [UIFont boldSystemFontOfSize:14];
+    label.font = font;
+    [label sizeToFit];
+    self.navigationItem.titleView = label;    
 	    
 	// Buttons
 	_previousButton.enabled = (_currentPageIndex > 0);
