@@ -947,7 +947,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (void)actionButtonPressed:(id)sender {
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
+    if (self.actionsSheet) {
+        // Dismiss
+        [self.actionsSheet dismissWithClickedButtonIndex:self.actionsSheet.cancelButtonIndex animated:YES];
+    } else if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
         
         // Keep controls hidden
         [self setControlsHidden:NO animated:YES permanent:YES];
@@ -974,36 +977,41 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         
         // Display the action sheet
         [actionSheet showFromBarButtonItem:self.navigationItem.rightBarButtonItem animated:YES];
+        
+        self.actionsSheet = actionSheet;
     }
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
-    if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
-        SHKItem *item = nil;
-        
-        if (buttonIndex == actionSheet.cancelButtonIndex) {
-            return;
-        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
-                    isEqualToString:NSLocalizedString(@"Email", @"Title of sharing button")]) {
-            [self shareByEmail];
-        } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
-                    isEqualToString:NSLocalizedString(@"Safari", @"Title of sharing button")]) {
-            NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
-            item = [SHKItem URL:url title:[photo title]];
-            [SHKSafari shareItem:item];
-        } else {
-            NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                   @"SHKTwitter", NSLocalizedString(@"Twitter", @"Title of sharing button"),
-                                   @"SHKFacebook", NSLocalizedString(@"Facebook", @"Title of sharing button"), 
-                                   nil];
-            NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (actionSheet == self.actionsSheet) {
+        self.actionsSheet = nil;
+        id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+        if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
+            SHKItem *item = nil;
             
-            Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
-            
-            item = [SHKItem image:[photo underlyingImage] title:[photo title]];
-            
-            [SharersClass performSelector:@selector(shareItem:) withObject:item];    
+            if (buttonIndex == actionSheet.cancelButtonIndex) {
+                return;
+            } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+                        isEqualToString:NSLocalizedString(@"Email", @"Title of sharing button")]) {
+                [self shareByEmail];
+            } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] 
+                        isEqualToString:NSLocalizedString(@"Safari", @"Title of sharing button")]) {
+                NSURL *url = [NSURL URLWithString:[photo pageUrlString]];
+                item = [SHKItem URL:url title:[photo title]];
+                [SHKSafari shareItem:item];
+            } else {
+                NSDictionary *table = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                       @"SHKTwitter", NSLocalizedString(@"Twitter", @"Title of sharing button"),
+                                       @"SHKFacebook", NSLocalizedString(@"Facebook", @"Title of sharing button"), 
+                                       nil];
+                NSString *sharersName = [actionSheet buttonTitleAtIndex:buttonIndex];
+                
+                Class SharersClass = NSClassFromString([table objectForKey:sharersName]);
+                
+                item = [SHKItem image:[photo underlyingImage] title:[photo title]];
+                
+                [SharersClass performSelector:@selector(shareItem:) withObject:item];    
+            }
         }
     }
 } 
