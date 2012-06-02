@@ -822,11 +822,16 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 #pragma mark - Navigation
 
 - (void)updateNavigation {
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    NSString *photoTitle = [photo title];
 	// Title
 	if ([self numberOfPhotos] > 1) {
-		self.title = [NSString stringWithFormat:@"%i %@ %i", _currentPageIndex+1, NSLocalizedString(@"of", @"As in 'Showing 1 of 3 items'"), [self numberOfPhotos]];		
+		self.title = [NSString stringWithFormat:@"%@ (%i/%i)",
+                      photoTitle,
+                      _currentPageIndex+1, 
+                      [self numberOfPhotos]];		
 	} else {
-		self.title = nil;
+		self.title = photoTitle;
 	}
 	    
 	// Buttons
