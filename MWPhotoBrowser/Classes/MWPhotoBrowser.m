@@ -248,12 +248,27 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
     _actionButton.style = UIBarButtonItemStyleDone;
     
+    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGesture:)];
+    tap.numberOfTapsRequired = 2;
+    tap.numberOfTouchesRequired = 1;
+    [_pagingScrollView addGestureRecognizer:tap];
+    [tap release];
+    
     // Update
     [self reloadData];
     
 	// Super
     [super viewDidLoad];
 	
+}
+
+- (void)tapGesture:(UIGestureRecognizer *)gesture
+{
+    MWPhoto *photo = (MWPhoto *)[self photoAtIndex:_currentPageIndex];
+    if ([photo underlyingImage]) {
+        DLog(@"Got double tap for photo with title %@", [photo title]);
+        DLog(@"Got double tap for photo with URL %@", [photo imageUrlString]);
+    }
 }
 
 - (void)performLayout {
