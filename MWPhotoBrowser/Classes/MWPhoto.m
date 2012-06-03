@@ -43,6 +43,7 @@
 @synthesize category = _category;
 @synthesize title = _title;
 @synthesize caption = _caption;
+@synthesize photoURL = _photoURL;
 @synthesize imageUrlString;
 @synthesize pageUrlString;
 @synthesize mobilePageUrlString;
