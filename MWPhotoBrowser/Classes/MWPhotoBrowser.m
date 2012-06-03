@@ -266,8 +266,16 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 {
     MWPhoto *photo = (MWPhoto *)[self photoAtIndex:_currentPageIndex];
     if ([photo underlyingImage]) {
-        DLog(@"Got double tap for photo with title %@", [photo title]);
-        DLog(@"Got double tap for photo with URL %@", [photo imageUrlString]);
+        DLog(@"Got double tap for photo with thumbnail URL %@", photo.photoURL);
+        DLog(@"Got double tap for photo with original URL %@", photo.imageUrlString);
+        [photo unloadUnderlyingImage];
+//        [_photos replaceObjectAtIndex:_currentPageIndex withObject:[NSNull null]];
+        photo.photoURL = [NSURL URLWithString:photo.imageUrlString];
+        DLog(@"Loading hires image at index %i", _currentPageIndex);
+        [photo loadUnderlyingImageAndNotify];
+        [self performLayout];
+//        [self didStartViewingPageAtIndex:_currentPageIndex];
+//        [self tilePages];
     }
 }
 
