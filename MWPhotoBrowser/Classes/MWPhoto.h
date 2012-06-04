@@ -25,6 +25,7 @@
 @property (nonatomic, retain) NSString *imageUrlString;
 @property (nonatomic, retain) NSString *pageUrlString;
 @property (nonatomic, retain) NSString *mobilePageUrlString;
+@property (nonatomic, retain) NSString *photoID;
 @property (nonatomic, retain) NSURL *photoURL;
 
 // Class

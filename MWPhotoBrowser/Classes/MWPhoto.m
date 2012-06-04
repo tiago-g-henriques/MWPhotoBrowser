@@ -47,6 +47,7 @@
 @synthesize imageUrlString;
 @synthesize pageUrlString;
 @synthesize mobilePageUrlString;
+@synthesize photoID;
 
 #pragma mark Class Methods
 
