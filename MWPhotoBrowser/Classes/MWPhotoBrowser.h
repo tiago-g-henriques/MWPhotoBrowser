@@ -34,7 +34,7 @@
 // Properties
 @property (nonatomic) BOOL displayActionButton;
 @property (nonatomic) NSUInteger currentPageIndex;
-@property (nonatomic) UIScrollView *pagingScrollView;
+@property (nonatomic, retain) UIScrollView *pagingScrollView;
 
 // Init
 - (id)initWithPhotos:(NSArray *)photosArray  __attribute__((deprecated)); // Depreciated
