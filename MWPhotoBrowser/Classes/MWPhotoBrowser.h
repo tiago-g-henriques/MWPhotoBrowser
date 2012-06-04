@@ -33,6 +33,8 @@
 
 // Properties
 @property (nonatomic) BOOL displayActionButton;
+@property (nonatomic) NSUInteger currentPageIndex;
+@property (nonatomic) UIScrollView *pagingScrollView;
 
 // Init
 - (id)initWithPhotos:(NSArray *)photosArray  __attribute__((deprecated)); // Depreciated
@@ -43,6 +45,25 @@
 
 // Set page that photo browser starts on
 - (void)setInitialPageIndex:(NSUInteger)index;
+
+// Layout
+- (void)performLayout;
+
+// Data
+- (NSUInteger)numberOfPhotos;
+- (id<MWPhoto>)photoAtIndex:(NSUInteger)index;
+- (UIImage *)imageForPhoto:(id<MWPhoto>)photo;
+- (void)loadAdjacentPhotosIfNecessary:(id<MWPhoto>)photo;
+- (void)releaseAllUnderlyingPhotos;
+
+// Sharing
+- (void)doneButtonPressed:(id)sender;
+- (void)actionButtonPressed:(id)sender;
+- (void)actionSheet:(UIActionSheet *)someActionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex;
+- (void)shareByEmail;
+
+// Paging
+- (void)didStartViewingPageAtIndex:(NSUInteger)index;
 
 @end
 

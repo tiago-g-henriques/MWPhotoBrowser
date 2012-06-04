@@ -75,9 +75,6 @@
 
 // Private Methods
 
-// Layout
-- (void)performLayout;
-
 // Nav Bar Appearance
 - (void)setNavBarAppearance:(BOOL)animated;
 - (void)storePreviousNavBarAppearance;
@@ -90,7 +87,6 @@
 - (MWZoomingScrollView *)pageDisplayingPhoto:(id<MWPhoto>)photo;
 - (MWZoomingScrollView *)dequeueRecycledPage;
 - (void)configurePage:(MWZoomingScrollView *)page forIndex:(NSUInteger)index;
-- (void)didStartViewingPageAtIndex:(NSUInteger)index;
 
 // Frames
 - (CGRect)frameForPagingScrollView;
@@ -112,13 +108,6 @@
 - (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated permanent:(BOOL)permanent;
 - (void)toggleControls;
 - (BOOL)areControlsHidden;
-
-// Data
-- (NSUInteger)numberOfPhotos;
-- (id<MWPhoto>)photoAtIndex:(NSUInteger)index;
-- (UIImage *)imageForPhoto:(id<MWPhoto>)photo;
-- (void)loadAdjacentPhotosIfNecessary:(id<MWPhoto>)photo;
-- (void)releaseAllUnderlyingPhotos;
 
 // Actions
 - (void)savePhoto;
@@ -142,6 +131,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 @synthesize displayActionButton = _displayActionButton, actionSheet = _actionSheet;
 @synthesize progressHUD = _progressHUD;
 @synthesize previousViewControllerBackButton = _previousViewControllerBackButton;
+@synthesize currentPageIndex = _currentPageIndex;
+@synthesize pagingScrollView = _pagingScrollView;
 
 #pragma mark - NSObject
 
@@ -248,35 +239,12 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
     _actionButton.style = UIBarButtonItemStyleDone;
     
-    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGesture:)];
-    tap.numberOfTapsRequired = 2;
-    tap.numberOfTouchesRequired = 1;
-    [_pagingScrollView addGestureRecognizer:tap];
-    [tap release];
-    
     // Update
     [self reloadData];
     
 	// Super
     [super viewDidLoad];
 	
-}
-
-- (void)tapGesture:(UIGestureRecognizer *)gesture
-{
-    MWPhoto *photo = (MWPhoto *)[self photoAtIndex:_currentPageIndex];
-    if ([photo underlyingImage]) {
-        DLog(@"Got double tap for photo with thumbnail URL %@", photo.photoURL);
-        DLog(@"Got double tap for photo with original URL %@", photo.imageUrlString);
-        [photo unloadUnderlyingImage];
-//        [_photos replaceObjectAtIndex:_currentPageIndex withObject:[NSNull null]];
-        photo.photoURL = [NSURL URLWithString:photo.imageUrlString];
-        DLog(@"Loading hires image at index %i", _currentPageIndex);
-        [photo loadUnderlyingImageAndNotify];
-        [self performLayout];
-//        [self didStartViewingPageAtIndex:_currentPageIndex];
-//        [self tilePages];
-    }
 }
 
 - (void)performLayout {
@@ -978,11 +946,13 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 #pragma mark - Misc
 
-- (void)doneButtonPressed:(id)sender {
+- (void)doneButtonPressed:(id)sender 
+{
     [self dismissModalViewControllerAnimated:YES];
 }
 
-- (void)actionButtonPressed:(id)sender {
+- (void)actionButtonPressed:(id)sender 
+{
     id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
     if (self.actionSheet) {
         // Dismiss
@@ -1017,7 +987,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     }
 }
 
-- (void)actionSheet:(UIActionSheet *)someActionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)someActionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
     if (someActionSheet == self.actionSheet) {
         self.actionSheet = nil;
         id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
