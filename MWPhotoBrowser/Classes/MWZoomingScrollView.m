@@ -44,7 +44,7 @@
 		// Image view
 		_photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:CGRectZero];
 		_photoImageView.tapDelegate = self;
-		_photoImageView.contentMode = UIViewContentModeCenter;
+		_photoImageView.contentMode = UIViewContentModeScaleAspectFit;
 		_photoImageView.backgroundColor = [UIColor blackColor];
 		[self addSubview:_photoImageView];
 		
@@ -115,10 +115,8 @@
 			_photoImageView.hidden = NO;
 			
 			// Setup photo frame
-			CGRect photoImageViewFrame;
-			photoImageViewFrame.origin = CGPointZero;
-			photoImageViewFrame.size = img.size;
-			_photoImageView.frame = photoImageViewFrame;
+			CGRect photoImageViewFrame = [UIScreen mainScreen].applicationFrame;
+            _photoImageView.frame = photoImageViewFrame;
 			self.contentSize = photoImageViewFrame.size;
 
 			// Set zoom to minimum zoom
