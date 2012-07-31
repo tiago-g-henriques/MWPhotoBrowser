@@ -22,8 +22,6 @@
 @property (nonatomic, assign) MWPhotoBrowser *photoBrowser;
 - (void)handleSingleTap:(CGPoint)touchPoint;
 - (void)handleDoubleTap:(CGPoint)touchPoint;
-- (float)statusBarRotationAngle;
-- (CGRect)rotatedApplicationFrame;
 @end
 
 @implementation MWZoomingScrollView
@@ -148,7 +146,7 @@
 	if (_photoImageView.image == nil) return;
 	
 	// Sizes
-    CGSize boundsSize = [self rotatedApplicationFrame].size;
+    CGSize boundsSize = self.bounds.size;
     CGSize imageSize = _photoImageView.image.size;
     
     // Calculate Min
@@ -164,18 +162,18 @@
     
 	// Set appropriate content mode for current orientation
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGRect applicationFrame = [self rotatedApplicationFrame];
     if (UIInterfaceOrientationIsPortrait(orientation)) {
-        _photoImageView.frame = applicationFrame;
         self.zoomScale = yScale;
+        _photoImageView.frame = self.bounds;
     } else {
-        CGFloat screenWidth = applicationFrame.size.width;
         self.zoomScale = xScale;
+        CGFloat screenWidth = self.bounds.size.width;
         _photoImageView.frame = CGRectMake(0,
                                            0,
                                            screenWidth,
                                            screenWidth * imageSize.height/imageSize.width);
     }
+    self.contentSize = _photoImageView.frame.size;
     [_photoImageView setNeedsDisplay];
     
 	// Calculate Max
@@ -292,37 +290,6 @@
 }
 - (void)view:(UIView *)view doubleTapDetected:(UITouch *)touch {
     [self handleDoubleTap:[touch locationInView:view]];
-}
-
-#pragma mark - rotated application frame
-
-- (float)statusBarRotationAngle 
-{
-    UIDeviceOrientation orientation = (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation];
-    
-    CGFloat rotationAngle = 0;
-    switch (orientation) {
-        case UIDeviceOrientationLandscapeLeft:
-            rotationAngle = (CGFloat) -M_PI_2;
-            break;
-        case UIDeviceOrientationLandscapeRight:
-            rotationAngle = (CGFloat) M_PI_2;
-            break;
-        case UIDeviceOrientationPortraitUpsideDown:
-            rotationAngle = (CGFloat) -M_PI;
-            break;
-        default:
-            break;
-    }
-    return rotationAngle;
-}
-
-- (CGRect)rotatedApplicationFrame
-{
-    CGRect rect = [[UIScreen mainScreen] applicationFrame];
-    
-    CGAffineTransform transform = CGAffineTransformMakeRotation([self statusBarRotationAngle]);
-    return CGRectApplyAffineTransform(rect, transform);
 }
 
 @end
