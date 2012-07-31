@@ -22,6 +22,8 @@
 @property (nonatomic, assign) MWPhotoBrowser *photoBrowser;
 - (void)handleSingleTap:(CGPoint)touchPoint;
 - (void)handleDoubleTap:(CGPoint)touchPoint;
+- (float)statusBarRotationAngle;
+- (CGRect)rotatedApplicationFrame;
 @end
 
 @implementation MWZoomingScrollView
@@ -44,7 +46,13 @@
 		// Image view
 		_photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:CGRectZero];
 		_photoImageView.tapDelegate = self;
-		_photoImageView.contentMode = UIViewContentModeScaleAspectFit;
+        UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+        if (orientation == UIInterfaceOrientationPortrait) {
+            _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
+        } else {
+            _photoImageView.contentMode = UIViewContentModeCenter;
+        }
+
 		_photoImageView.backgroundColor = [UIColor blackColor];
 		[self addSubview:_photoImageView];
 		
@@ -115,7 +123,7 @@
 			_photoImageView.hidden = NO;
 			
 			// Setup photo frame
-			CGRect photoImageViewFrame = [UIScreen mainScreen].applicationFrame;
+			CGRect photoImageViewFrame = [self rotatedApplicationFrame];
             _photoImageView.frame = photoImageViewFrame;
 			self.contentSize = photoImageViewFrame.size;
 
@@ -177,9 +185,20 @@
 	self.maximumZoomScale = maxScale;
 	self.minimumZoomScale = minScale;
 	self.zoomScale = minScale;
-	
+
+    [_photoImageView setBackgroundColor:[UIColor redColor]];
+	// Set appropriate content mode for current orientation
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+        _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
+        [_photoImageView setNeedsDisplay];
+    } else {
+        _photoImageView.contentMode = UIViewContentModeScaleAspectFill;
+        [_photoImageView setNeedsDisplay];
+    }
+    
 	// Reset position
-	_photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
+	_photoImageView.frame = self.rotatedApplicationFrame;
 	[self setNeedsLayout];
 
 }
@@ -282,6 +301,37 @@
 }
 - (void)view:(UIView *)view doubleTapDetected:(UITouch *)touch {
     [self handleDoubleTap:[touch locationInView:view]];
+}
+
+#pragma mark - rotated application frame
+
+- (float)statusBarRotationAngle 
+{
+    UIDeviceOrientation orientation = (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation];
+    
+    CGFloat rotationAngle = 0;
+    switch (orientation) {
+        case UIDeviceOrientationLandscapeLeft:
+            rotationAngle = (CGFloat) -M_PI_2;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            rotationAngle = (CGFloat) M_PI_2;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            rotationAngle = (CGFloat) -M_PI;
+            break;
+        default:
+            break;
+    }
+    return rotationAngle;
+}
+
+- (CGRect)rotatedApplicationFrame
+{
+    CGRect rect = [[UIScreen mainScreen] applicationFrame];
+    
+    CGAffineTransform transform = CGAffineTransformMakeRotation([self statusBarRotationAngle]);
+    return CGRectApplyAffineTransform(rect, transform);
 }
 
 @end
