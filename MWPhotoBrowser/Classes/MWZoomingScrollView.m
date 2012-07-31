@@ -46,6 +46,7 @@
 		// Image view
 		_photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:CGRectZero];
 		_photoImageView.tapDelegate = self;
+		_photoImageView.contentMode = UIViewContentModeScaleAspectFit;
 		_photoImageView.backgroundColor = [UIColor blackColor];
 		[self addSubview:_photoImageView];
 		
@@ -179,15 +180,14 @@
     CGRect applicationFrame = [self rotatedApplicationFrame];
     if (UIInterfaceOrientationIsPortrait(orientation)) {
         _photoImageView.frame = applicationFrame;
-        _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
     } else {
         CGFloat screenWidth = applicationFrame.size.width;
         CGSize imageSize = _photoImageView.image.size;
+        CGFloat imageAspectRatio = imageSize.height / imageSize.width;
         _photoImageView.frame = CGRectMake(0,
                                            0,
                                            screenWidth,
-                                           screenWidth * imageSize.height/imageSize.width);
-        _photoImageView.contentMode = UIViewContentModeScaleAspectFill;
+                                           screenWidth * imageAspectRatio);
     }
     [_photoImageView setNeedsDisplay];
     
