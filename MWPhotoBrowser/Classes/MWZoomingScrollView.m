@@ -174,19 +174,26 @@
 	self.minimumZoomScale = minScale;
 	self.zoomScale = minScale;
 
-    [_photoImageView setBackgroundColor:[UIColor redColor]];
 	// Set appropriate content mode for current orientation
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGRect applicationFrame = [self rotatedApplicationFrame];
     if (UIInterfaceOrientationIsPortrait(orientation)) {
+        _photoImageView.frame = applicationFrame;
         _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
     } else {
+        CGFloat screenWidth = applicationFrame.size.width;
+        CGSize imageSize = _photoImageView.image.size;
+        _photoImageView.frame = CGRectMake(0,
+                                           0,
+                                           screenWidth,
+                                           screenWidth * imageSize.height/imageSize.width);
         _photoImageView.contentMode = UIViewContentModeScaleAspectFill;
     }
     [_photoImageView setNeedsDisplay];
     
 	// Reset position
-	_photoImageView.frame = [self rotatedApplicationFrame];
-    self.contentSize = _photoImageView.frame.size;
+    self.contentSize = applicationFrame.size;
+
 	[self setNeedsLayout];
 
 }
