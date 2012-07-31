@@ -148,8 +148,8 @@
 	if (_photoImageView.image == nil) return;
 	
 	// Sizes
-    CGSize boundsSize = self.bounds.size;
-    CGSize imageSize = _photoImageView.frame.size;
+    CGSize boundsSize = [self rotatedApplicationFrame].size;
+    CGSize imageSize = _photoImageView.image.size;
     
     // Calculate Min
     CGFloat xScale = boundsSize.width / imageSize.width;    // the scale needed to perfectly fit the image width-wise
@@ -162,6 +162,22 @@
 		minScale = 1.0;
 	}
     
+	// Set appropriate content mode for current orientation
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGRect applicationFrame = [self rotatedApplicationFrame];
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+        _photoImageView.frame = applicationFrame;
+        self.zoomScale = yScale;
+    } else {
+        CGFloat screenWidth = applicationFrame.size.width;
+        self.zoomScale = xScale;
+        _photoImageView.frame = CGRectMake(0,
+                                           0,
+                                           screenWidth,
+                                           screenWidth * imageSize.height/imageSize.width);
+    }
+    [_photoImageView setNeedsDisplay];
+    
 	// Calculate Max
 	CGFloat maxScale = 2.0; // Allow double scale
     // on high resolution screens we have double the pixel density, so we will be seeing every pixel if we limit the
@@ -173,26 +189,6 @@
 	// Set
 	self.maximumZoomScale = maxScale;
 	self.minimumZoomScale = minScale;
-	self.zoomScale = minScale;
-
-	// Set appropriate content mode for current orientation
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    CGRect applicationFrame = [self rotatedApplicationFrame];
-    if (UIInterfaceOrientationIsPortrait(orientation)) {
-        _photoImageView.frame = applicationFrame;
-    } else {
-        CGFloat screenWidth = applicationFrame.size.width;
-        CGSize imageSize = _photoImageView.image.size;
-        CGFloat imageAspectRatio = imageSize.height / imageSize.width;
-        _photoImageView.frame = CGRectMake(0,
-                                           0,
-                                           screenWidth,
-                                           screenWidth * imageAspectRatio);
-    }
-    [_photoImageView setNeedsDisplay];
-    
-	// Reset position
-    self.contentSize = applicationFrame.size;
 
 	[self setNeedsLayout];
 
