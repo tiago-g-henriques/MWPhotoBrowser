@@ -46,13 +46,6 @@
 		// Image view
 		_photoImageView = [[MWTapDetectingImageView alloc] initWithFrame:CGRectZero];
 		_photoImageView.tapDelegate = self;
-        UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-        if (orientation == UIInterfaceOrientationPortrait) {
-            _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
-        } else {
-            _photoImageView.contentMode = UIViewContentModeCenter;
-        }
-
 		_photoImageView.backgroundColor = [UIColor blackColor];
 		[self addSubview:_photoImageView];
 		
@@ -122,11 +115,6 @@
 			_photoImageView.image = img;
 			_photoImageView.hidden = NO;
 			
-			// Setup photo frame
-			CGRect photoImageViewFrame = [self rotatedApplicationFrame];
-            _photoImageView.frame = photoImageViewFrame;
-			self.contentSize = photoImageViewFrame.size;
-
 			// Set zoom to minimum zoom
 			[self setMaxMinZoomScalesForCurrentBounds];
 			
@@ -191,14 +179,14 @@
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     if (UIInterfaceOrientationIsPortrait(orientation)) {
         _photoImageView.contentMode = UIViewContentModeScaleAspectFit;
-        [_photoImageView setNeedsDisplay];
     } else {
         _photoImageView.contentMode = UIViewContentModeScaleAspectFill;
-        [_photoImageView setNeedsDisplay];
     }
+    [_photoImageView setNeedsDisplay];
     
 	// Reset position
-	_photoImageView.frame = self.rotatedApplicationFrame;
+	_photoImageView.frame = [self rotatedApplicationFrame];
+    self.contentSize = _photoImageView.frame.size;
 	[self setNeedsLayout];
 
 }
