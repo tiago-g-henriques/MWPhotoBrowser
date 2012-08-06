@@ -166,7 +166,7 @@
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     if (UIInterfaceOrientationIsPortrait(orientation)) {
         self.zoomScale = yScale;
-        minScale = MIN(xScale, yScale) * deviceScale;
+        minScale = 1;
         _photoImageView.frame = self.bounds;
     } else {
         self.zoomScale = xScale;
